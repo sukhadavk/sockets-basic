@@ -5,7 +5,11 @@ var socket = io();
 console.log(name + ' wants to join '+ room);
 
 socket.on('connect', function () {
-	console.log('connected to socket io server');	
+	console.log('connected to socket io server');
+	socket.emit('joinRoom', {
+		name: name,
+		room: room
+	});
 });
 
 socket.on('message', function (message) {
@@ -21,6 +25,7 @@ socket.on('message', function (message) {
 
 //handles submitting of new message
 var $form = jQuery('#message-form');
+var $roomForm = jQuery('.room-title').text(room);
 
 $form.on('submit', function (event) {
 	event.preventDefault();
@@ -30,6 +35,6 @@ $form.on('submit', function (event) {
 		text: $message.val()
 	});
 
-	//clean the message
+    //clean the message
 	$message.val('');
 });

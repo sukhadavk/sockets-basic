@@ -8,15 +8,27 @@ var io = require('socket.io')(http);
 
 app.use(express.static(__dirname + '/public'));
 
+var clientInfo = {};
+
 io.on('connection', function(socket) {
 	console.log('user connected via socket.io');
+
+	socket.on('joinRoom', function (req) {
+		clientInfo[socket.id] = req;
+		socket.join(req.room);
+		socket.broadcast.to(req.room).emit('message', {
+			name: 'Syatem',
+			text: req.name + ' has joined!',
+			timestamp: moment().valueOf()
+		});
+	});
 
 	socket.on('message', function(message) {
 		console.log('Message Received : ' + message.text);
 
 		message.timestamp =  moment().valueOf();
 		//io.emit -  vereyone including sender
-		io.emit('message', message);
+		io.to(clientInfo[socket.id].room).emit('message', message);
 		//excluding sender
 		//socket.broadcast.emit('message', message);
 	});
